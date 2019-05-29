@@ -1,0 +1,38 @@
+# https://spin.atomicobject.com/2017/11/15/table-rel-diagrams-graphviz/
+digraph {
+    graph [pad="0.5", nodesep="0.5", ranksep="2"];
+    node [shape=none]
+    rankdir=LR;
+
+{% for table in tables %}
+    {{ table.name }} [label=<
+        <table border="0" cellborder="1" cellspacing="0">
+            <tr><td bgcolor="#ADD8E6"><i>{{ table.name }}</i></td></tr>
+        {%- for column in table.columns %}
+            <tr><td align="left" port="{{ column.name }}">{{ column.name }} : {{ column.type }}</td></tr>
+        {%- endfor %}
+        {%- if table.indices|length > 0 %}
+            <tr><td>Indices</td></tr>
+            {%- for index in table.indices %}
+                <tr><td align="left">{{ index.name }}</td></tr>
+            {%- endfor %}
+        {%- endif %}
+        {%- if table.constraints|length > 0 %}
+            <tr><td>Constraints</td></tr>
+            {%- for constraint in table.constraints %}
+                <tr><td align="left">{{ constraint.name }}</td></tr>
+            {%- endfor %}
+        {%- endif %}
+
+        </table>
+    >]
+{% endfor %}
+
+{% for key in foreign_keys -%}
+    {{ key.src_table}}:{{ key.src_column}} -> {{ key.dest_table }}:{{ key.dest_column }}
+{% endfor %}
+
+{% for key in potential_foreign_keys -%}
+    {{ key.src_table}}:{{ key.src_column}} -> {{ key.dest_table }}:{{ key.dest_column }} [color="gray"]
+{% endfor %}
+}
